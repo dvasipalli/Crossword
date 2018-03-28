@@ -24,7 +24,7 @@ def print_board(board):
 
 def print_words(pwords):
     for word in pwords:
-        print ("word: {0:s} | board index[row, col]: [{1:d}, {2:d}] | align: {3:s}\n".format(word['word'], word['row'], word['col'], word['align']))
+        print ("word: {1:{0:d}s} | board index[row, col]: [{2:3d}, {3:3d}] | align: {4:s}".format(pwords[0]['len'], word['word'], word['row'], word['col'], word['align']))
 
 def board_available(word, row, col, index, board):
 #horizontal placement
@@ -100,9 +100,9 @@ num_words = 10
 f = open("words")
 words = f.read()
 word = []
-pwords = []
 word = words.split()
 
+pwords = []
 for i in range(0, num_words):
     temp = {}
     temp['word'] = word[m.floor(r.random()*(len(word)-1))]
@@ -116,7 +116,7 @@ for i in range(0, num_words):
     temp['word'] = temp['word'].upper()
     pwords.append(temp)
 
-pwords = sorted(pwords, key =lambda k: len(k['word']), reverse = True)
+pwords = sorted(pwords, key =lambda k: k['len'], reverse = True)
 
 board = []
 
