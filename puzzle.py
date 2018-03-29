@@ -13,9 +13,7 @@ def print_board(board):
             if board[u][v] == '-':
                 print ("   |", end = "")
             else:
-                print (" ", end = "")
-                print (board[u][v], end = "")
-                print (" |", end = "")
+                print (" {0:s} |".format(board[u][v]), end = "")
         print ()
     print("+", end = "")
     for v in  range(0, len(board)):
