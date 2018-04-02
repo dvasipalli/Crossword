@@ -4,13 +4,25 @@ import random as r
 import math as m
 
 def print_board(board):
-    print ("______________________________________\n")
     for u in range(0, len(board)):
-        print ("|", end = "")
+        print("+", end = "")
+        for v in  range(0, len(board[u])):
+            print ("---+", end = "")
+        print ("\n|", end = "")
         for v in range(0, len(board[u])):
-            print (board[u][v], end = "")
-            print ("|", end = "")
-        print ("\n______________________________________\n")
+            if board[u][v] == '-':
+                print ("   |", end = "")
+            else:
+                print (" {0:s} |".format(board[u][v]), end = "")
+        print ()
+    print("+", end = "")
+    for v in  range(0, len(board)):
+        print ("---+", end = "")
+    print ()
+
+def print_words(pwords):
+    for word in pwords:
+        print ("word: {1:{0:d}s} | board index[row, col]: [{2:3d}, {3:3d}] | align: {4:s}".format(pwords[0]['len'], word['word'], word['row'], word['col'], word['align']))
 
 def board_available(word, row, col, index, board):
 #horizontal placement
@@ -20,6 +32,8 @@ def board_available(word, row, col, index, board):
                 continue
             if board[row][u] != '-':
                 return False
+        word['row'] = row
+        word['col'] = col-index
         return True
 #vertical placement
     if word['align'] == 'V':
@@ -28,31 +42,33 @@ def board_available(word, row, col, index, board):
                 continue
             if board[u][col] != '-':
                 return False
+        word['row'] = row-index
+        word['col'] = col
         return True
 
 def fill_board(word, row, col, index, board):
     i=0
 #horizontal placement
     if word['align'] == 'H':
-        for u in range(col-index, col-index+word['len']):
+        for u in range(word['col'], word['col']+word['len']):
             if u==col:
                 i+=1
                 continue
-            board[row][u] = word['word'][i]
+            board[word['row']][u] = word['word'][i]
             i+=1
 #vertical placement
     if word['align'] == 'V':
-        for u in range(row-index, row-index+word['len']):
+        for u in range(word['row'], word['row']+word['len']):
             if u==row:
                 i+=1
                 continue
-            board[u][col] = word['word'][i]
+            board[u][word['col']] = word['word'][i]
             i+=1
 
 def place_if_fit(word, c, row, col, board):
     index = word['word'].find(c)
 #consider vertical placement
-    if row-index>0 and word['len']-index == grid_size-row:
+    if row-index>0 and row-index+word['len'] < grid_size:
         word['align'] = 'V'
         if(board_available(word, row, col, index, board)):
             fill_board(word, row, col, index, board)
@@ -60,7 +76,7 @@ def place_if_fit(word, c, row, col, board):
         else:
             word['align'] = ''
 #consider horizontal placement
-    if col-index>0 and word['len']-index == grid_size-col:
+    if col-index>0 and col-index+word['len']-index < grid_size:
         word['align'] = 'H'
         if(board_available(word, row, col, index, board)):
             fill_board(word, row, col, index, board)
@@ -78,28 +94,27 @@ def place_in_board(word, board):
                         return;
 
 grid_size = 15
-num_words = 50
-f = open("/usr/dict/words")
+num_words = 10
+f = open("words")
 words = f.read()
 word = []
-pwords = []
 word = words.split()
 
-for i in range(0,num_words):
+pwords = []
+for i in range(0, num_words):
     temp = {}
     temp['word'] = word[m.floor(r.random()*(len(word)-1))]
-    while(len(temp['word']) > 10):
+    temp['len'] = len(temp['word'])
+    while(temp['len'] > grid_size-3 or temp['len'] < 3):
         temp['word'] = word[m.floor(r.random()*(len(word)-1))]
+        temp['len'] = len(temp['word'])
     temp['row'] = -1
     temp['col'] = -1
     temp['align'] = ""
-    temp['len'] = len(temp['word'])
+    temp['word'] = temp['word'].upper()
     pwords.append(temp)
 
-#print(pwords)
-pwords = sorted(pwords, key =lambda k: len(k['word']), reverse = True)
-
-print(pwords)
+pwords = sorted(pwords, key =lambda k: k['len'], reverse = True)
 
 board = []
 
@@ -115,7 +130,8 @@ pwords[0]['align'] = 'H'
 board[1][1] = pwords[0]['word'][0]
 fill_board(pwords[0], 1, 1, 0, board)
 
-print_board(board)
 for u in range(1, num_words):
     place_in_board(pwords[u], board)
 
+print_board(board)
+print_words(pwords)
